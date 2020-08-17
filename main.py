@@ -19,14 +19,15 @@ boxXpos = []
 boxYpos = []
 boxXsize = []
 boxYsize = []
-position = 1
+position = 0
 
 #character info
 x = 250
-y = 35
-width = 35
-height = 35
+y = 250
+width = 40
+height = 40
 vel = 5
+character = pygame.draw.rect(win, (46, 204, 113), (x,  y, width, height))
 
 #creates a class of obstacles with assigned info
 class obstacle:
@@ -52,7 +53,6 @@ class obstacle:
             if self.xPos == 0 and self.yPos == 480:
                 pygame.draw.rect(win, (0,0,0), (200, 480, 100, 20))
             
-
 #goals - creates room with: walls, random boxes in the middle   
 def createroom():
     global boxNum
@@ -72,8 +72,8 @@ def createroom():
     boxYpos.clear()
     boxNum = randrange(4)
     for i in range(boxNum + 3):
-        boxXpos.append(random.randint(50, 400))
-        boxYpos.append(random.randint(50, 400))
+        boxXpos.append(random.randint(60, 365))
+        boxYpos.append(random.randint(60, 365))
         boxXsize.append(random.randint(50, 75))
         boxYsize.append(random.randint(50, 75))
 
@@ -155,6 +155,7 @@ def drawroom():
 while run == True:
     #updates/creates a new room with new obstacles
     createroom()
+    game = True
 
     #looks at input
     while game == True:
@@ -162,28 +163,59 @@ while run == True:
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                game = False
+                run = False
                 pygame.quit()
                 pygame.font.quit()
                 quit()
         
         keys = pygame.key.get_pressed()
 
-        if keys[pygame.K_LEFT] and x >= vel:
-            x -= vel
+        counter = -1
+        for l in boxXpos:
+            counter += 1
 
-        if keys[pygame.K_RIGHT]and x <= screenwidth - width - vel:
-            x += vel
+            if character.colliderect(box1) == False and character.colliderect(box2) == False and character.colliderect(box3) == False and character.colliderect(box4) == False and character.colliderect(box5) == False and character.colliderect(box6) == False:
+            #if x + vel <= boxXpos[counter] or x + vel >= boxXpos[counter] + boxXsize[counter] and y >= boxYpos[counter] and y <= boxYpos[counter] + boxYsize[counter]:
+                if keys[pygame.K_RIGHT]and x + 20 <= screenwidth - width - vel:
+                    x += vel
 
-        if keys[pygame.K_UP] and y >= vel:
-            y -= vel
+            #if x - vel >= boxXpos[counter] + boxXsize[counter] or x - vel <= boxXpos[counter] and y >= boxYpos[counter] and y <= boxYpos[counter] + boxYsize[counter]:
+                if keys[pygame.K_LEFT] and x - 20 >= vel:
+                    x -= vel
 
-        if keys[pygame.K_DOWN] and y <= screenheight - height - vel:
-            y += vel
+            #if y + vel != boxYpos[counter] + boxYsize[counter] and y <= boxXpos[counter] and y  >= boxXpos[counter] + boxXsize[counter]:
+                if keys[pygame.K_DOWN] and y + 20 <= screenheight - height - vel:
+                    y += vel
+
+            #if y - vel != boxYpos[counter] and y <= boxXpos[counter] and y >= boxXpos[counter] + boxXsize[counter]:
+                if keys[pygame.K_UP] and y - 20 >= vel:
+                    y -= vel
+
+        #checks if player goes into exit
+        if leave == 0 and x == 20 and y >= 200 and y <= 300:
+            x = 480 - width
+            y = 270
+            position = 0
+            game = False
+        if leave == 1 and x == 480 - width and y >= 200 and y <= 300:
+            x = 20
+            y = 270
+            position = 1
+            game = False
+        if leave == 2 and x >= 200 and x <= 300 and y == 20:
+            x = 230
+            y = 480 - height
+            position = 2
+            game = False
+        if leave == 3 and x >= 200 and x <= 300 and y == 480 - height:
+            x = 230
+            y = 20
+            position = 3
+            game = False
 
         win.fill((0,0,0))
         drawroom()
-        pygame.draw.rect(win, (46, 204, 113), (x,  y, width, height))   
+        character = pygame.draw.rect(win, (46, 204, 113), (x,  y, width, height))   
         pygame.display.update() 
 
 
